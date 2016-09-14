@@ -7,17 +7,7 @@ import {HeroService} from './hero.service';
 
 @Component({
     selector: 'my-hero-detail',
-    template: `
-            <div *ngIf="hero">
-                <h2>{{hero.name}} details!</h2>
-                <div><label>id: </label>{{hero.id}}</div>
-                <div>
-                    <label>name: </label>
-                    <input [(ngModel)]="hero.name" placeholder="name">
-                </div>
-                <button (click)="goBack()">Back</button>
-            </div>
-            `,
+    templateUrl: 'app/hero-detail.component.html',
     styleUrls: ['app/hero-detail.component.css']
 })
 export class HeroDetailComponent implements OnInit {
@@ -39,5 +29,10 @@ export class HeroDetailComponent implements OnInit {
 
     goBack(): void {
         window.history.back();
+    }
+
+    save(): void{
+        this.heroService.save(this.hero)
+        .then(this.goBack)
     }
 }
