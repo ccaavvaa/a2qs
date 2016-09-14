@@ -12,6 +12,8 @@ import { HeroesComponent }     from './heroes.component';
 import { DashboardComponent }   from './dashboard.component';
 import { HeroService }         from './hero.service';
 
+import {VerySimpleComponent} from './very-simple.component';
+
 import { routing } from "./app.routing";
 
 @NgModule({
@@ -26,7 +28,8 @@ import { routing } from "./app.routing";
     AppComponent,
     HeroDetailComponent,
     HeroesComponent,
-    DashboardComponent
+    DashboardComponent,
+    VerySimpleComponent
   ],
   providers: [
     HeroService
