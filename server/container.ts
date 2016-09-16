@@ -42,4 +42,29 @@ export class Container {
         this.rules.push(new RuleRegistration(condition, rule));
     }
 
+
+    private constructors: any[] = [];
+
+    registerConstructor(constr:any){
+        this.constructors.push(constr);
+
+        if(constr.prototype.registerRules){
+           constr.prototype.registerRules(this); 
+        }
+    }
+
+    createNew(className: string): Promise<any>{
+        let constr = this.constructors.find((f=>f.name == className));
+        let instance = new constr(this);
+        
+        return this.sendMessage(
+            {
+                type: MessageType.ObjectInit, 
+                body: {
+                    constr:instance.constructor, 
+                    target:instance
+                }
+            })
+            .then<any>(()=>instance);
+    }
 }
