@@ -8,7 +8,7 @@ export abstract class ModelObject {
         return this.container.sendMessage({
                 type: MessageType.PropChanged,
                 body: {
-                    className: this.constructor.name,
+                    constr: this.constructor,
                     target: this,
                     propName: propName,
                 }

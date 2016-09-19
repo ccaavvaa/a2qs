@@ -3,6 +3,8 @@
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import * as path from "path";
+import {Container} from './container';
+import {VerySimpleModel} from './very-simple-model';
 
 /**
  * The server.
@@ -40,7 +42,15 @@ class Server {
 
         this.app.get('/hello', (req, res) => {
             res.json({ msg: 'hello world!' });
-        })
+        });
+
+        this.app.get('/v', async (req, res) =>{
+            let c = new Container();
+            c.registerConstructor(VerySimpleModel);
+            let m = await c.createNew('VerySimpleModel') as VerySimpleModel;
+            await m.setA(await m.getA() + ' x');
+            res.json((m as any).data);
+        });
     }
 
     start() {

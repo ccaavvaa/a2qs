@@ -28,8 +28,9 @@ export class VerySimpleModel extends ModelObject {
     static async rule1(message: Message): Promise<void> {
         let pcm = message as PropChangedMessage;
         let target = pcm.body.target as VerySimpleModel;
-
-        return target.setB(await target.getA() + "from a");
+       
+        //let a = ;
+        return target.setB(await target.getA() + " from a");
     }
 
     static async initRule(message: Message): Promise<void> {
@@ -44,7 +45,7 @@ export class VerySimpleModel extends ModelObject {
             {
                 type: MessageType.PropChanged,
                 body: {
-                    constr: VerySimpleModel.constructor,
+                    constr: VerySimpleModel,
                     propName: 'a'
                 }
             }, VerySimpleModel.rule1);
@@ -52,7 +53,7 @@ export class VerySimpleModel extends ModelObject {
             {
                 type: MessageType.ObjectInit,
                 body: {
-                    constr: VerySimpleModel.constructor
+                    constr: VerySimpleModel
                 }
             }, VerySimpleModel.initRule);
     }

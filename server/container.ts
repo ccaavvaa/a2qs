@@ -48,20 +48,20 @@ export class Container {
     registerConstructor(constr:any){
         this.constructors.push(constr);
 
-        if(constr.prototype.registerRules){
-           constr.prototype.registerRules(this); 
+        if(constr.registerRules){
+           constr.registerRules(this); 
         }
     }
 
     createNew(className: string): Promise<any>{
         let constr = this.constructors.find((f=>f.name == className));
-        let instance = new constr(this);
+        let instance = new constr(this, {});
         
         return this.sendMessage(
             {
                 type: MessageType.ObjectInit, 
                 body: {
-                    constr:instance.constructor, 
+                    constr:constr, 
                     target:instance
                 }
             })
