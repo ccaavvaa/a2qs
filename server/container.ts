@@ -1,5 +1,6 @@
-import {Message, MessageType} from './message';
+import {Message, MessageType, PropChangedMessage} from './message';
 import {ModelObject} from './model-object';
+import {ruleDeclarations, RuleDeclaration} from './rule-declaration';
 
 export interface RuleCondition {
     type: MessageType,
@@ -56,6 +57,43 @@ export class Container {
         if (constr.registerRules) {
             constr.registerRules(this);
         }
+
+        ruleDeclarations
+            .filter(r => r.type == MessageType.PropChanged && r.constr === constr)
+            .forEach(rd => {
+                rd.properties.forEach(propName => {
+                    this.registerRule(
+                        {
+                            type: MessageType.PropChanged,
+                            body: {
+                                constr: rd.constr,
+                                propName: propName
+                            }
+                        },
+                        function (message: Message): Promise<void> {
+                            let pcm = message as PropChangedMessage;
+                            let target = pcm.body.target;
+                            return (rd.rule as (target: any, propName: string) => Promise<void>)(target, propName);
+                        }
+                    )
+                })
+            });
+        ruleDeclarations
+            .filter(r => r.type == MessageType.ObjectInit && r.constr === constr)
+            .forEach(rd => {
+                this.registerRule(
+                    {
+                        type: MessageType.ObjectInit,
+                        body: {
+                            constr: rd.constr
+                        }
+                    },
+                    function (message: Message): Promise<void> {
+                        let target = message.body.target;
+                        return (rd.rule as (target: any) => Promise<void>)(target);
+                    }
+                )
+            });
     }
 
     createNew(className: string): Promise<any> {
@@ -78,9 +116,9 @@ export class Container {
             .then(instance => instance.data);
     }
 
-    async patch(id: string, patches:any[]): Promise<any>{
+    async patch(id: string, patches: any[]): Promise<any> {
         let instance = this.instances[id] as ModelObject;
-        for(let i = 0, len = patches.length; i < len; i++){
+        for (let i = 0, len = patches.length; i < len; i++) {
             let patch = patches[i];
             await instance.setProperty(patch.path, patch.value);
         }

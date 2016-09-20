@@ -1,6 +1,7 @@
 import {ModelObject} from './model-object';
 import {Container, RuleCondition, Rule} from './container';
 import {Message, MessageType, PropChangedBody, PropChangedMessage} from './message';
+import {PropChangedRule, InitRule} from './decorators'; 
 
 export class VerySimpleModel extends ModelObject {
     get id() { return this.data.id; }
@@ -25,21 +26,26 @@ export class VerySimpleModel extends ModelObject {
         super(container, data)
     }
 
-    static async rule1(message: Message): Promise<void> {
-        let pcm = message as PropChangedMessage;
-        let target = pcm.body.target as VerySimpleModel;
-       
+    @PropChangedRule(['a'])
+    static async rule2(target: VerySimpleModel, propName: string): Promise<void>
+    {
         return target.setB(await target.getA() + " from a");
     }
-
-    static async initRule(message: Message): Promise<void> {
+    @InitRule()
+    static async rule3(target: VerySimpleModel): Promise<void>
+    {
+        return target.setA("initial aa");
+    }
+    
+/*    static async initRule(message: Message): Promise<void> {
         let pcm = message as PropChangedMessage;
         let target = pcm.body.target as VerySimpleModel;
 
         return target.setA("initial a");
     }
-
+*/
     static registerRules(container: Container) {
+        /*
         container.registerRule(
             {
                 type: MessageType.PropChanged,
@@ -48,6 +54,9 @@ export class VerySimpleModel extends ModelObject {
                     propName: 'a'
                 }
             }, VerySimpleModel.rule1);
+        */
+
+        /*
         container.registerRule(
             {
                 type: MessageType.ObjectInit,
@@ -55,5 +64,6 @@ export class VerySimpleModel extends ModelObject {
                     constr: VerySimpleModel
                 }
             }, VerySimpleModel.initRule);
+            */
     }
 }
