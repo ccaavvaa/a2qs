@@ -29,7 +29,6 @@ export class VerySimpleModel extends ModelObject {
         let pcm = message as PropChangedMessage;
         let target = pcm.body.target as VerySimpleModel;
        
-        //let a = ;
         return target.setB(await target.getA() + " from a");
     }
 
