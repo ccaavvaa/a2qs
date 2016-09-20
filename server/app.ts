@@ -44,12 +44,15 @@ class Server {
             res.json({ msg: 'hello world!' });
         });
 
-        this.app.get('/v', async (req, res) =>{
-            let c = new Container();
-            c.registerConstructor(VerySimpleModel);
-            let m = await c.createNew('VerySimpleModel') as VerySimpleModel;
-            await m.setA(await m.getA() + ' x');
-            res.json((m as any).data);
+        this.app.get('/api/view/:modelName', (req, res) =>{
+            let modelName = req.params.modelName;
+            container.getNew(modelName)
+            .then(m=> res.json(m));
+        });
+        this.app.post('/api/data/:id', (req, res) =>{
+            console.log('ok? ' + req.body);
+            container.patch(req.params.id, req.body.patches as any[])
+            .then(m=> res.json(m.data));
         });
     }
 
@@ -66,3 +69,5 @@ class Server {
     }
 }
 Server.bootstrap().start();
+var container = new Container();
+container.registerConstructor(VerySimpleModel);

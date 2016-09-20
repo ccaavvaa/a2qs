@@ -1,4 +1,5 @@
 import {Message, MessageType} from './message';
+import {ModelObject} from './model-object';
 
 export interface RuleCondition {
     type: MessageType,
@@ -25,7 +26,11 @@ class RuleRegistration {
 }
 
 export class Container {
-    
+
+    static lastId: number = 0;
+
+    private instances: any = {};
+
     private rules: RuleRegistration[] = [];
 
     async sendMessage(msg: Message): Promise<void> {
@@ -45,26 +50,40 @@ export class Container {
 
     private constructors: any[] = [];
 
-    registerConstructor(constr:any){
+    registerConstructor(constr: any) {
         this.constructors.push(constr);
 
-        if(constr.registerRules){
-           constr.registerRules(this); 
+        if (constr.registerRules) {
+            constr.registerRules(this);
         }
     }
 
-    createNew(className: string): Promise<any>{
-        let constr = this.constructors.find((f=>f.name == className));
+    createNew(className: string): Promise<any> {
+        let constr = this.constructors.find((f => f.name == className));
         let instance = new constr(this, {});
-        
+        this.instances[instance.id] = instance;
         return this.sendMessage(
             {
-                type: MessageType.ObjectInit, 
+                type: MessageType.ObjectInit,
                 body: {
-                    constr:constr, 
-                    target:instance
+                    constr: constr,
+                    target: instance
                 }
             })
-            .then<any>(()=>instance);
+            .then<any>(() => instance);
+    }
+
+    getNew(className: string): Promise<any> {
+        return this.createNew(className)
+            .then(instance => instance.data);
+    }
+
+    async patch(id: string, patches:any[]): Promise<any>{
+        let instance = this.instances[id] as ModelObject;
+        for(let i = 0, len = patches.length; i < len; i++){
+            let patch = patches[i];
+            await instance.setProperty(patch.path, patch.value);
+        }
+        return instance;
     }
 }
