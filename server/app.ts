@@ -50,7 +50,7 @@ class Server {
             .then(m=> res.json(m));
         });
         this.app.post('/api/data/:id', (req, res) =>{
-            console.log('ok? ' + req.body);
+            console.log(req.body);
             container.patch(req.params.id, req.body.patches as any[])
             .then(m=> res.json(m.data));
         });
